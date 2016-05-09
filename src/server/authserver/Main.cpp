@@ -223,8 +223,7 @@ bool StartDB()
     // NOTE: While authserver is singlethreaded you should keep synch_threads == 1.
     // Increasing it is just silly since only 1 will be used ever.
     DatabaseLoader loader("server.authserver", DatabaseLoader::DATABASE_NONE);
-    loader
-        .AddDatabase(LoginDatabase, "Login");
+    loader.AddDatabase(LoginDatabase, "Login");
 
     if (!loader.Load())
         return false;

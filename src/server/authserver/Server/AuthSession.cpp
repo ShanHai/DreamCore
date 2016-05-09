@@ -858,7 +858,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     {
         const Realm &realm = i.second;
         // don't work with realms which not compatible with the client
-        bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.Build == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.Build));
+        bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.Build >= _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.Build));
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
