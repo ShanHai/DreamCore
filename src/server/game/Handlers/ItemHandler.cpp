@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "Item.h"
 #include "SpellInfo.h"
+#include "DCVIPModule.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
@@ -766,6 +767,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     size_t countPos = data.wpos();
     data << uint8(count);
 
+    auto vipVendor = sDCVIPModule->isVipVendor(vendor->GetEntry());
+    auto shirt = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_BODY);
+    auto vipDiscount = shirt && shirt->GetEntry() == 17 ? 0.9f : 1.0f;
+
     float discountMod = _player->GetReputationPriceDiscount(vendor);
 
     for (uint8 slot = 0; slot < itemCount; ++slot)
@@ -793,7 +798,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 }
 
                 // reputation discount
-                int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
+                int32 price = vipVendor ? uint32(round(item->points * vipDiscount) * 10000) : item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
 
                 data << uint32(slot + 1);       // client expects counting to start at 1
                 data << uint32(item->item);

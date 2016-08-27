@@ -1,0 +1,18 @@
+#ifndef _DC_COMPOSER_H_
+#define _DC_COMPOSER_H_
+
+#define DEFAULT_MENU_CATEGORY    0
+#define DEFAULT_MENU_TEXTID      907
+#define COMPOSE_INFO             11000000
+
+#define GLOBAL_ITEM_CATEGORY     1000
+
+#define MENU_ITEMS_PER_PAGE      5
+
+#define MENU_SENDER_MAIN_PAGE    0
+#define MENU_SENDER_PREV_PAGE    1
+#define MENU_SENDER_NEXT_PAGE    2
+#define MENU_SENDER_COMPOSE      3
+#define MENU_SENDER_CANCLE       4
+
+#endif

@@ -81,6 +81,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "GameObjectAI.h"
+#include "DCVIPModule.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -530,6 +531,12 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    // VIP & Point system
+    m_vipLevel = 0;
+    m_points = 0;
+
+    memset(m_customTimers, 0, CUSTOM_TIMERS_COUNT);
 }
 
 Player::~Player()
@@ -857,7 +864,84 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     }
     // all item positions resolved
 
+    LoadVipAndPointsFromDB();
+
     return true;
+}
+
+void Player::LoadVipAndPointsFromDB()
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_AND_POINTS);
+    stmt->setUInt32(0, m_session->GetAccountId());
+    stmt->setUInt32(1, realm.Id.Realm);
+
+    auto result = LoginDatabase.Query(stmt);
+    if (!result)
+    {
+        m_vipLevel = sDCMgr->getConfigInt(DC_CONFIG_VIP_START_VIPLEVEL);
+
+        SetPoints(sDCMgr->getConfigInt(DC_CONFIG_VIP_START_POINTS));
+
+    }
+    else
+    {
+        auto fields = result->Fetch();
+        m_vipLevel  = fields[0].GetUInt32();
+
+        SetPoints(fields[1].GetUInt32());
+    }
+}
+
+void Player::LoadVipFromDB()
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_BY_REALMID);
+    stmt->setUInt32(0, m_session->GetAccountId());
+    stmt->setUInt32(1, realm.Id.Realm);
+
+    auto result = LoginDatabase.Query(stmt);
+    if (!result)
+    {
+        m_vipLevel = 0;
+    }
+    else
+    {
+        auto fields = result->Fetch();
+        m_vipLevel = fields[0].GetUInt32();
+    }
+}
+
+void Player::LoadPointsFromDB()
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_POINTS_BY_REALMID);
+    stmt->setUInt32(0, m_session->GetAccountId());
+    stmt->setUInt32(1, realm.Id.Realm);
+
+    auto result = LoginDatabase.Query(stmt);
+    if (!result)
+    {
+        SetPoints(0);
+    }
+    else
+    {
+        auto fields = result->Fetch();
+        SetPoints(fields[0].GetUInt32());
+    }
+}
+
+void Player::SetPoints(uint32 points)
+{
+    if (auto item = sObjectMgr->GetItemTemplate(sDCMgr->getConfigInt(DC_CONFIG_VIP_POINTS_ITEMENTRY)))
+    {
+        auto cur = GetItemCount(item->ItemId);
+        if (cur > points)
+            DestroyItemCount(item->ItemId, cur - points, true);
+        else if (cur < points)
+            AddItem(item->ItemId, points - cur);
+        else
+            _UpdatePoints(points);
+    }
+    else
+        _UpdatePoints(points);
 }
 
 bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
@@ -1546,7 +1630,49 @@ void Player::Update(uint32 p_time)
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
+    UpdateCustomTimers(p_time);
 }
+
+void Player::UpdateCustomTimers(uint32 diff)
+{
+    auto curLevel = getLevel();
+    auto minLevel = sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_EXP_MINLEVEL);
+    auto maxLevel = std::min(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_EXP_MAXLEVEL));
+
+    if (sDCMgr->getConfigBool(DC_CONFIG_ONLINE_REWARD_EXP) && curLevel >= minLevel && curLevel < maxLevel)
+    {
+        m_customTimers[TIMER_ONLINE_REWARD_EXP] += diff;
+
+        if (m_customTimers[TIMER_ONLINE_REWARD_EXP] >= sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_EXP_TIMER))
+        {
+            m_customTimers[TIMER_ONLINE_REWARD_EXP] = 0;
+
+            auto xp = sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_EXP_COUNT);
+            GiveXP(xp, minLevel, maxLevel);
+
+            ChatHandler(GetSession()).PSendSysMessage(sDCMgr->BuildDCText(STRING_YOU_GET_ONLINE_REWARD_XP, xp).c_str());
+        }
+    }
+
+    minLevel = sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_POINTS_MINLEVEL);
+    maxLevel = sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_POINTS_MAXLEVEL);
+
+    if (sDCMgr->getConfigBool(DC_CONFIG_ONLINE_REWARD_POINTS) && curLevel >= minLevel && curLevel <= maxLevel)
+    {
+        m_customTimers[TIMER_ONLINE_REWARD_POINTS] += diff;
+
+        if (m_customTimers[TIMER_ONLINE_REWARD_POINTS] >= sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_POINTS_TIMER))
+        {
+            m_customTimers[TIMER_ONLINE_REWARD_POINTS] = 0;
+
+            auto points = sDCMgr->getConfigInt(DC_CONFIG_ONLINE_REWARD_POINTS_COUNT);
+            ModifyPoints(points);
+
+            ChatHandler(GetSession()).PSendSysMessage(sDCMgr->BuildDCText(STRING_YOU_GET_ONLINE_REWARD_POINTS, points, GetPoints()).c_str());
+        }
+    }
+}
+
 
 void Player::setDeathState(DeathState s)
 {
@@ -2729,6 +2855,34 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
             GiveLevel(level + 1);
 
         level = getLevel();
+        nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    }
+
+    SetUInt32Value(PLAYER_XP, newXP);
+}
+
+void Player::GiveXP(int32 xp, uint8 minLevel, uint8 maxLevel)
+{
+    auto curLevel  = getLevel();
+    auto curXP     = GetUInt32Value(PLAYER_XP);
+    auto nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    auto newXP     = curXP + xp;
+    auto limit     = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+    maxLevel = maxLevel == 0 || maxLevel > limit ? limit : maxLevel;
+    minLevel = std::min(minLevel, maxLevel);
+
+    if (curLevel < minLevel || curLevel >= maxLevel)
+        return;
+
+    while (newXP >= nextLvlXP && curLevel < maxLevel)
+    {
+        newXP -= nextLvlXP;
+
+        if (curLevel < maxLevel)
+            GiveLevel(curLevel + 1);
+
+        curLevel  = getLevel();
         nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     }
 
@@ -11817,6 +11971,10 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
+
+    if (lastItem && lastItem->GetEntry() == sDCMgr->getConfigInt(DC_CONFIG_VIP_POINTS_ITEMENTRY))
+        _UpdatePoints(GetItemCount(lastItem->GetEntry()));
+
     return lastItem;
 }
 
@@ -12281,6 +12439,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
 
+        if (pItem->GetEntry() == sDCMgr->getConfigInt(DC_CONFIG_VIP_POINTS_ITEMENTRY))
+            _UpdatePoints(0);
+
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid::Empty);
@@ -12352,6 +12513,8 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
         GetName().c_str(), GetGUID().ToString().c_str(), itemEntry, count);
     uint32 remcount = 0;
 
+    auto isPoints = itemEntry == sDCMgr->getConfigInt(DC_CONFIG_VIP_POINTS_ITEMENTRY);
+
     // in inventory
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
@@ -12375,6 +12538,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
+
+                    if (m_points && isPoints)
+                        _UpdatePoints(m_points > count ? m_points - count : 0);
+
                     return;
                 }
             }
@@ -12403,6 +12570,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
+
+                    if (m_points && isPoints)
+                        _UpdatePoints(m_points > count ? m_points - count : 0);
+
                     return;
                 }
             }
@@ -12436,6 +12607,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                             if (IsInWorld() && update)
                                 item->SendUpdateToPlayer(this);
                             item->SetState(ITEM_CHANGED, this);
+
+                            if (m_points && isPoints)
+                                _UpdatePoints(m_points > count ? m_points - count : 0);
+
                             return;
                         }
                     }
@@ -12469,6 +12644,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
+
+                    if (m_points && isPoints)
+                        _UpdatePoints(m_points > count ? m_points - count : 0);
+
                     return;
                 }
             }
@@ -12496,6 +12675,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
+
+                    if (m_points && isPoints)
+                        _UpdatePoints(m_points > count ? m_points - count : 0);
+
                     return;
                 }
             }
@@ -12529,6 +12712,10 @@ void Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, bool 
                             if (IsInWorld() && update)
                                 item->SendUpdateToPlayer(this);
                             item->SetState(ITEM_CHANGED, this);
+
+                            if (m_points && isPoints)
+                                _UpdatePoints(m_points > count ? m_points - count : 0);
+
                             return;
                         }
                     }
@@ -12647,6 +12834,9 @@ void Player::DestroyItemCount(Item* pItem, uint32 &count, bool update)
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
         pItem->SetState(ITEM_CHANGED, this);
+
+        if (pItem->GetEntry() == sDCMgr->getConfigInt(DC_CONFIG_VIP_POINTS_ITEMENTRY))
+            _UpdatePoints(pItem->GetCount());
     }
 }
 
@@ -14263,6 +14453,11 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     ModifyMoney(-cost);
 }
 
+void Player::OnItemGossipSelect(Item *source, uint32 gossipListId, uint32 menuId)
+{
+    PlayerTalkClass->SendCloseGossip();
+}
+
 uint32 Player::GetGossipTextId(WorldObject* source)
 {
     if (!source)
@@ -14947,7 +15142,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
+    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this) * sWorld->getRate(getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? RATE_XP_QUESTMAX : RATE_XP_QUEST));
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -19304,6 +19499,8 @@ void Player::SaveToDB(bool create /*=false*/)
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+
+    SaveVipAndPointsToDB();
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
@@ -19318,6 +19515,54 @@ void Player::SaveGoldToDB(SQLTransaction& trans) const
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_MONEY);
     stmt->setUInt32(0, GetMoney());
     stmt->setUInt32(1, GetGUID().GetCounter());
+    trans->Append(stmt);
+}
+
+void Player::SaveVipAndPointsToDB()
+{
+    auto result = LoginDatabase.PQuery("SELECT 1 FROM dc_vip WHERE id = %u", m_session->GetAccountId());
+    auto trans  = LoginDatabase.BeginTransaction();
+
+    if (!result)
+    {
+        auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_VIP_POINTS);
+        stmt->setUInt32(0, m_session->GetAccountId());
+        stmt->setUInt32(1, GetVipLevel());
+        stmt->setUInt32(2, GetPoints());
+        stmt->setUInt32(3, realm.Id.Realm);
+        trans->Append(stmt);
+    }
+    else
+        SaveVipAndPointsToDB(trans);
+
+    LoginDatabase.CommitTransaction(trans);
+}
+
+void Player::SaveVipAndPointsToDB(SQLTransaction& trans)
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL_POINTS);
+    stmt->setUInt32(0, GetVipLevel());
+    stmt->setUInt32(1, GetPoints());
+    stmt->setUInt32(2, m_session->GetAccountId());
+
+    trans->Append(stmt);
+}
+
+void Player::SaveVipToDB(SQLTransaction& trans)
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL);
+    stmt->setUInt32(0, GetVipLevel());
+    stmt->setUInt32(1, m_session->GetAccountId());
+
+    trans->Append(stmt);
+}
+
+void Player::SavePointsToDB(SQLTransaction& trans)
+{
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_POINTS);
+    stmt->setUInt32(0, GetPoints());
+    stmt->setUInt32(1, m_session->GetAccountId());
+
     trans->Append(stmt);
 }
 
@@ -21381,7 +21626,18 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         return false;
     }
 
-    ModifyMoney(-price);
+    auto vipVendor = pVendor && sDCVIPModule->isVipVendor(pVendor->GetEntry());
+    if (vipVendor)
+    {
+        ModifyPoints(-price);
+        auto itemName = sObjectMgr->GetItemTemplate(item)->Name1;
+        if (auto il = sObjectMgr->GetItemLocale(item))
+            ObjectMgr::GetLocaleString(il->Name, GetSession()->GetSessionDbLocaleIndex(), itemName);
+
+        ChatHandler(GetSession()).SendSysMessage(sDCMgr->BuildDCText(STRING_YOU_COST_POINTS_TO_BUY, price, count, itemName.c_str(), GetPoints()).c_str());
+    }
+    else
+        ModifyMoney(-price);
 
     if (crItem->ExtendedCost)                            // case for new honor system
     {
@@ -21426,6 +21682,12 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
             it->SetPaidExtendedCost(crItem->ExtendedCost);
             it->SaveRefundDataToDB();
             AddRefundReference(it->GetGUID());
+        }
+
+        if (vipVendor)
+        {
+            it->SetBinding(false);
+            it->SetBinding(true);
         }
     }
     return true;
@@ -21556,25 +21818,43 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
     }
 
+    auto vipVendor = sDCVIPModule->isVipVendor(creature->GetEntry());
+    auto shirt = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_BODY);
+    auto vipDiscount = shirt && shirt->GetEntry() == 17 ? 0.9f : 1.0f;
+
     uint32 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (vipVendor && crItem->points > 0 || !vipVendor && crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
+        uint32 maxCount = MAX_MONEY_AMOUNT / (vipVendor ? crItem->points : pProto->BuyPrice);
         if ((uint32)count > maxCount)
         {
             TC_LOG_ERROR("entities.player.cheat", "Player::BuyItemFromVendorSlot: Player '%s' (%s) tried to buy item (ItemID: %u, Count: %u), causing overflow",
                 GetName().c_str(), GetGUID().ToString().c_str(), pProto->ItemId, (uint32)count);
             count = (uint8)maxCount;
         }
-        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
 
-        // reputation discount
-        price = uint32(floor(price * GetReputationPriceDiscount(creature)));
-
-        if (!HasEnoughMoney(price))
+        if (vipVendor)
         {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item, 0);
-            return false;
+            price = uint32(round(crItem->points * count * vipDiscount));
+
+            if (!HasEnoughPoints(price))
+            {
+                GetSession()->SendNotification(sDCMgr->BuildDCText(STRING_YOU_DONT_HAVE_ENOUGH_POINTS).c_str());
+                return false;
+            }
+        }
+        else
+        {
+            price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
+
+            // reputation discount
+            price = uint32(floor(price * GetReputationPriceDiscount(creature)));
+
+            if (!HasEnoughMoney(price))
+            {
+                SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item, 0);
+                return false;
+            }
         }
     }
 

@@ -45,6 +45,7 @@
 #include "WardenMac.h"
 #include "PacketUtilities.h"
 #include "Metric.h"
+#include "DCMgr.h"
 
 #include <zlib.h>
 
@@ -628,6 +629,11 @@ void WorldSession::SendNotification(uint32 string_id, ...)
 char const* WorldSession::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
+}
+
+const char *WorldSession::GetDCString(int32 entry) const
+{
+    return sDCMgr->GetDCString(entry, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::Handle_NULL(WorldPacket& null)

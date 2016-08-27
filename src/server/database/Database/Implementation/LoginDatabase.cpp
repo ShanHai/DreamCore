@@ -118,4 +118,13 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_INS_ACCOUNT_MUTE, "INSERT INTO account_muted VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO, "SELECT mutedate, mutetime, mutereason, mutedby FROM account_muted WHERE guid = ? ORDER BY mutedate ASC", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_DEL_ACCOUNT_MUTED, "DELETE FROM account_muted WHERE guid = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_SEL_ACCOUNT_VIP_POINTS, "SELECT a.id, aa.vipLevel, aa.points, aa.RealmID FROM account a LEFT JOIN dc_vip aa ON (a.id = aa.id) WHERE username = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_INS_ACCOUNT_VIP_POINTS, "INSERT INTO dc_vip (id,vipLevel,points,RealmID) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_GET_VIPLEVEL_AND_POINTS, "SELECT vipLevel, points FROM dc_vip WHERE id = ? AND (RealmID = ? OR RealmID = -1)", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_GET_VIPLEVEL_BY_REALMID, "SELECT vipLevel FROM dc_vip WHERE id = ? AND (RealmID = ? OR RealmID = -1)", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_GET_POINTS_BY_REALMID, "SELECT points FROM dc_vip WHERE id = ? AND (RealmID = ? OR RealmID = -1)", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_VIPLEVEL, "UPDATE dc_vip SET vipLevel = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_POINTS, "UPDATE dc_vip SET points = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_VIPLEVEL_POINTS, "UPDATE dc_vip SET vipLevel = ?, points = ? WHERE id = ?", CONNECTION_ASYNC);
 }

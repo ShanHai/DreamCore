@@ -2024,14 +2024,17 @@ Rate.Drop.Item.ReferencedAmount = 1
 #
 #    Rate.XP.Kill
 #    Rate.XP.Quest
+#    Rate.XP.QuestMax
 #    Rate.XP.Explore
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill, affects only kills outside of Battlegrounds)
 #                     1 - (Rate.XP.Quest)
+#                     1 - (Rate.XP.QuestMax, affects only player reached maxlevel)
 #                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
+Rate.XP.QuestMax= 1
 Rate.XP.Explore = 1
 
 #

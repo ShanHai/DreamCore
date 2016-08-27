@@ -489,6 +489,13 @@ enum MirrorTimerType
 #define MAX_TIMERS      3
 #define DISABLED_MIRROR_TIMER   -1
 
+enum CustomTimers
+{
+    TIMER_ONLINE_REWARD_EXP = 0,
+    TIMER_ONLINE_REWARD_POINTS = 1,
+    CUSTOM_TIMERS_COUNT
+};
+
 // 2^n values
 enum PlayerExtraFlags
 {
@@ -1061,6 +1068,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo);
 
         void Update(uint32 time) override;
+        void UpdateCustomTimers(uint32 diff);
 
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
 
@@ -1118,6 +1126,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
+        void GiveXP(int32 xp, uint8 minLevel = 0u, uint8 maxLevel = 0u);
         void GiveLevel(uint8 level);
 
         void InitStatsForLevel(bool reapplyMods = false);
@@ -1311,6 +1320,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void PrepareGossipMenu(WorldObject* source, uint32 menuId = 0, bool showQuests = false);
         void SendPreparedGossip(WorldObject* source);
         void OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId);
+        void OnItemGossipSelect(Item *source, uint32 gossipListId, uint32 menuId);
 
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
@@ -1435,6 +1445,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
+        void LoadVipAndPointsFromDB();
+        void LoadVipFromDB();
+        void LoadPointsFromDB();
         bool IsLoading() const override;
 
         void Initialize(ObjectGuid::LowType guid);
@@ -1454,6 +1467,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SaveToDB(bool create = false);
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans) const;
+        void SaveVipAndPointsToDB();
+        void SaveVipAndPointsToDB(SQLTransaction& trans);
+        void SaveVipToDB(SQLTransaction& trans);
+        void SavePointsToDB(SQLTransaction& trans);
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
@@ -2278,6 +2295,21 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
+        /************************************************************/
+        /***                  VIP & Point SYSTEM                  ***/
+        /************************************************************/
+        bool IsVip() const { return m_vipLevel > 0; }
+        bool HasEnoughPoints(uint32 points) { return m_points >= points; }
+        bool HasEnoughVipLevel(uint32 level) { return m_vipLevel >= level; }
+
+        uint32 GetVipLevel() const { return m_vipLevel; }
+        uint32 GetPoints() const { return m_points; }
+        void   SetVipLevel(uint32 level) { m_vipLevel = level; }
+        void   SetPoints(uint32 points);
+        void   ModifyPoints(int32 points) { SetPoints(points < 0 && uint32(-points) > m_points ? 0 : int32(m_points) + points); }
+
+        void   InitCustomTimers();
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2605,6 +2637,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        void _UpdatePoints(uint32 points) { m_points = points; }
+
+        uint32 m_vipLevel;
+        uint32 m_points;
+        uint32 m_customTimers[CUSTOM_TIMERS_COUNT];
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

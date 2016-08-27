@@ -748,6 +748,25 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
 
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_DC                                     = 2000,
+    RBAC_PERM_COMMAND_VIP                                    = 2001,
+    RBAC_PERM_COMMAND_DC_RELOAD                              = 2002,
+    RBAC_PERM_COMMAND_DC_VIP                                 = 2003,
+    RBAC_PERM_COMMAND_DC_RELOAD_MODULE                       = 2004,
+    RBAC_PERM_COMMAND_DC_RELOAD_STRINGS                      = 2005,
+    RBAC_PERM_COMMAND_DC_RELOAD_COSTS                        = 2006,
+    RBAC_PERM_COMMAND_DC_RELOAD_REQUIREMENTS                 = 2007,
+    RBAC_PERM_COMMAND_DC_RELOAD_ICONS                        = 2008,
+    RBAC_PERM_COMMAND_DC_RELOAD_ITEMS                        = 2009,
+    RBAC_PERM_COMMAND_DC_RELOAD_CONFIG                       = 2010,
+    RBAC_PERM_COMMAND_DC_VIP_SET                             = 2011,
+    RBAC_PERM_COMMAND_DC_VIP_MODIFY                          = 2012,
+    RBAC_PERM_COMMAND_DC_VIP_SET_VIPLEVEL                    = 2013,
+    RBAC_PERM_COMMAND_DC_VIP_SET_POINTS                      = 2014,
+    RBAC_PERM_COMMAND_DC_VIP_MODIFY_POINTS                   = 2015,
+    RBAC_PERM_COMMAND_DC_VIP_ADD                             = 2016,
+    RBAC_PERM_COMMAND_DC_VIP_ADD_VENDOR                      = 2017,
+
     RBAC_PERM_MAX
 };
 

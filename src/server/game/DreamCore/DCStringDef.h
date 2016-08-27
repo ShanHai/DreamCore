@@ -1,0 +1,91 @@
+#ifndef _DC_STRINGDEF_H_
+#define _DC_STRINGDEF_H_
+
+enum DCStringDef
+{
+    STRING_TELEPORT_TO                       = 1,         // Teleport to %s
+    STRING_TELEPORT_REMIND                   = 2,         // Are you sure you want to teleport to %s ?
+    STRING_THIS_MAY_TAKE                     = 3,         // This may take %s
+    STRING_GOLD                              = 4,         // %u gold
+    STRING_SILVER                            = 5,         // %u silver
+    STRING_COPPER                            = 6,         // %u copper
+    STRING_HONOR                             = 7,         // %u honor
+    STRING_POINT                             = 8,         // %u point
+    STRING_ARENA                             = 9,         // %u arena point
+    STRING_AND                               = 10,        // and
+    STRING_TAG_BRACKETS                      = 11,        // [%s]
+    STRING_TAG_PARENTHESES                   = 12,        // (%s)
+    STRING_TAG_ANGLE_BRACKETS                = 13,        // <%s>
+    STRING_PARAM_CAN_NOT_BE_NULL             = 14,        // Param can not be null!
+    STRING_SYSTEM_NOT_FOUND                  = 15,        // Can not find system with name [%s]
+    STRING_TELEPORT_CONDITIONS               = 16,        // We are sorry, but you don't meet the teleport conditions!
+    STRING_COST_INFO                         = 17,        // You cost %s
+    STRING_COMPOSE_INFO                      = 18,        // Compose info
+    STRING_ITEM_INFO                         = 19,        // |cff%s|TInterface\icons\%s:%i:%i:%i:%i|t [%s]|r
+    STRING_ITEM_INFO_COUNT                   = 20,        // |cff%s|TInterface\icons\%s:%i:%i:%i:%i|t [%s]|r |cff%sx %i|r
+    STRING_COMPOSE_CONDITIONS                = 21,        // We are sorry, but you don't meet the compose conditions!
+    STRING_NOT_ENOUGH_BAG_SPACE              = 22,        // You don't have enough bag space.
+    STRING_COMPOSE_FAILED                    = 23,        // It seems that you are unfortunate, compose failed!
+    STRING_YOU_ARE_IN_COMBAT                 = 24,        // You are in combat.
+    STRING_YOU_ARE_FLYING                    = 25,        // You are flying.
+    STRING_YOU_ARE_IN_COMBAT_OR_FLYING       = 26,        // You are in combat or flying.
+    STRING_VIPLEVEL_CAN_NOT_LESS_THAN_ZERO   = 27,        // VipLevel can not be less than 0.
+    STRING_POINTS_CAN_NOT_LESS_THAN_ZERO     = 28,        // Points can not be less than 0.
+    STRING_YOU_CHANGE_VIPLEVEL               = 29,        // You change vip level of %s to %u.
+    STRING_YOU_CHANGE_POINTS                 = 30,        // You change points of %s to %u.
+    STRING_YOU_ADD_POINTS                    = 31,        // You add %i points to %s
+    STRING_VIPLEVEL_AND_POINTS               = 32,        // Current vip level: %u, points: %u.
+    STRING_YOU_GET_ONLINE_REWARD_XP          = 33,        // You get online reward: %u xp.
+    STRING_YOU_GET_ONLINE_REWARD_POINTS      = 34,        // You get online reward: %u points. Current points: %u.
+    STRING_YOU_DONT_HAVE_ENOUGH_POINTS       = 35,        // You don't have enough points.
+    STRING_YOU_DONT_HAVE_ENOUGH_VIPLEVEL     = 36,        // You don't have enough vip level.
+    STRING_YOU_COST_POINTS_TO_BUY            = 37,        // You cost %u points to buy %u %s. Current points: %u.
+    STRING_ENTRY_IS_NOT_A_VENDOR             = 38,        // Entry [%u] is not a creature or vendor.
+    STRING_ADD_VIP_VENDOR_SUCCESS            = 39,        // Successfully added entry %u to vip vender list.
+    STRING_YOU_DONT_KNOW_THIS_SKILL          = 40,        // You don not know this skill: %s.
+    STRING_SKILL_ALREADY_MAX                 = 41,        // This skill already max.
+    STRING_YOU_USE_AND_GET_XP                = 42,        // You used item %s and get %u xp.
+    STRING_YOU_USE_AND_GET_PROFESSION        = 43,        // You used item %s and get %u skill points for skill %s
+    STRING_YOU_USE_AND_RESET_INST            = 44,        // You used item %s and reset instance %s.
+    STRING_INST_RESET_REMIND                 = 45,        // Are you sure you want to reset instance %s ?
+    STRING_INST_RESET_FAILES_IN_INST         = 46,        // Instance unbind failed. You are in this instance, please exit instance first.
+    STRING_TRANSMOG_SUCCESS                  = 47,        // Transmog success!
+    STRING_TRANSMOG_INVALID_SLOT             = 48,        // Equipment slot is empty.
+    STRING_TRANSMOG_INVALID_SRC_ENTRY        = 49,        // Invalid source item.
+    STRING_TRANSMOG_MISSING_SRC_ITEM         = 50,        // Source item does not exist.
+    STRING_TRANSMOG_MISSING_DEST_ITEM        = 51,        // Destination item does not exist.
+    STRING_TRANSMOG_INVALID_ITEMS            = 52,        // Selected items are invalid.
+    STRING_TRANSMOG_NOT_ENOUGH_MONEY         = 53,        // Not enough money.
+    STRING_TRANSMOG_NOT_ENOUGH_TOKENS        = 54,        // You don't have enough tokens.
+    STRING_UNTRANSMOG_SUCCESS                = 55,        // Transmogrifications removed.
+    STRING_UNTRANSMOG_NO_TRANSMOGS           = 56,        // There are no transmogrifications.
+    STRING_TRANSMOG_INFO                     = 57,        // See how transmogrification works
+    STRING_TRANSMOG_REMOVE_ALL               = 58,        // Remove all transmogrifications
+    STRING_TRANSMOG_REFRESH                  = 59,        // Refresh
+    STRING_TRANSMOG_BACK                     = 60,        // Back
+    STRING_TRANSMOG_REMOVE                   = 61,        // Remove transmogrification
+    STRING_TRANSMOG_REMIND                   = 62,        // Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable. Do you wish to continue ?
+    STRING_UNTRANSMOG_REMIND                 = 63,        // Are you sure you want to remove transmogrification from the slot?
+    STRING_UNTRANSMOG_ALL_REMIND             = 64,        // Are you sure you want to remove transmogrifications from all equipped items?
+    STRING_EQUIPMENT_SLOT_HEAD               = 5000,      // Head
+    STRING_EQUIPMENT_SLOT_NECK               = 5001,      // Neck
+    STRING_EQUIPMENT_SLOT_SHOULDERS          = 5002,      // Shoulders
+    STRING_EQUIPMENT_SLOT_SHIRT              = 5003,      // Shirt
+    STRING_EQUIPMENT_SLOT_CHEST              = 5004,      // Chest
+    STRING_EQUIPMENT_SLOT_WAIST              = 5005,      // Waist
+    STRING_EQUIPMENT_SLOT_LEGS               = 5006,      // Legs
+    STRING_EQUIPMENT_SLOT_FEET               = 5007,      // Feet
+    STRING_EQUIPMENT_SLOT_WRISTS             = 5008,      // Wrists
+    STRING_EQUIPMENT_SLOT_HANDS              = 5009,      // Hands
+    STRING_EQUIPMENT_SLOT_FINGER1            = 5010,      // Finger
+    STRING_EQUIPMENT_SLOT_FINGER2            = 5011,      // Finger
+    STRING_EQUIPMENT_SLOT_TRINKET1           = 5012,      // Trinket
+    STRING_EQUIPMENT_SLOT_TRINKET2           = 5013,      // Trinket
+    STRING_EQUIPMENT_SLOT_BACK               = 5014,      // Back
+    STRING_EQUIPMENT_SLOT_MAINHAND           = 5015,      // Main hand
+    STRING_EQUIPMENT_SLOT_OFFHAND            = 5016,      // Off hand
+    STRING_EQUIPMENT_SLOT_RANGED             = 5017,      // Ranged
+    STRING_EQUIPMENT_SLOT_TABARD             = 5018,      // Tabard
+};
+
+#endif

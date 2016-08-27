@@ -413,6 +413,7 @@ class TC_GAME_API WorldSession
         LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
         LocaleConstant GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
         char const* GetTrinityString(uint32 entry) const;
+        char const* GetDCString(int32 entry) const;
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }

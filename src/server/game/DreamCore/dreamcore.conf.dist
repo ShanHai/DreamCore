@@ -1,0 +1,115 @@
+#################################################
+# DreamCore settings configuration file #
+#################################################
+[dreamcore]
+
+###################################################################################################
+# DC TELEPORT SYSTEM
+#
+#    DC.Teleport.MenuItemsPerPage
+#        Description: The max menu item count displayed per menu page.
+#        Note:        Must lager than 0
+#        Default:     5
+#
+#    DC.Teleport.EnableRemind
+#        Description: Enable or disable remind popup box before player teleport.
+#        Note:        All teleporters use the same setting! If a teleport action costs money, point
+#                     or honor, this setting may useless.
+#        Default:     0 - disable
+#                     1 - enable
+#
+#    DC.Teleport.CheckReq
+#        Description: Enable or disable requirement check before player teleport.
+#        Note:        All teleporters use the same setting!
+#        Default:     0 - disable
+#                     1 - enable
+#
+#    DC.Teleport.CheckCost
+#        Description: Enable or disable cost check before player teleport.
+#        Note:        All teleporters use the same setting!
+#        Default:     0 - disable
+#                     1 - enable
+#
+#    DC.Teleport.CheckVisible
+#        Description: Enable or disable teleport visible check when player open teleport menu.
+#        Note:        All teleporters use the same setting!
+#        Default:     0 - disable
+#                     1 - enable
+#
+###################################################################################################
+
+DC.Teleport.MenuItemsPerPage = 5
+DC.Teleport.EnableRemind     = 1
+DC.Teleport.CheckReq         = 1
+DC.Teleport.CheckCost        = 1
+DC.Teleport.CheckVisible     = 1
+
+###################################################################################################
+# DC COMPOSE SYSTEM
+#
+#    DC.Compose.MenuItemsPerPage
+#        Description: The max menu item count displayed per menu page.
+#        Note:        Must lager than 0
+#        Default:     5
+#
+###################################################################################################
+
+DC.Compose.MenuItemsPerPage = 5
+DC.Compose.DefaultLootLimit = 1
+DC.Compose.MaxLootLimit     = 5
+DC.Compose.CheckReq         = 1
+DC.Compose.CheckCost        = 1
+
+###################################################################################################
+# DC VIP & POINTS SYSTEM
+#
+#    DC.Vip.StartVipLevel
+#        Description: The start vip level when an account created.
+#        Default:     0
+#
+#    DC.Vip.StartPoints
+#        Description: The start points when an account created.
+#        Default:     0
+#
+###################################################################################################
+
+DC.Vip.StartVipLevel                = 0
+DC.Vip.StartPoints                  = 100
+DC.Vip.Points.ItemEntry             = 37711
+
+DC.Online.Reward.Exp                = 1
+DC.Online.Reward.Exp.Timer          = 1800000
+DC.Online.Reward.Exp.Count          = 10000
+DC.Online.Reward.Exp.MinLevel       = 1
+DC.Online.Reward.Exp.MaxLevel       = 80
+
+DC.Online.Reward.Points             = 1
+DC.Online.Reward.Points.Timer       = 3600000
+DC.Online.Reward.Points.Count       = 10
+DC.Online.Reward.Points.MinLevel    = 1
+DC.Online.Reward.Points.MaxLevel    = 80
+
+DC.Max.PlayerTalents = 0
+
+###################################################################################################
+# DC CUSTOM DIFFICULTY CONTROL
+#
+#    DC.Diff.Normal
+#        Description: Normal map difficulty mod based on world.config settings.
+#        Default:     1.0
+#
+#    DC.Diff.Dungeon
+#        Description: Dungeon difficulty mod based on world.config settings.
+#        Default:     1.0
+#
+#    DC.Diff.Raid
+#        Description: Raid difficulty mod based on world.config settings.
+#        Default:     1.0
+#
+###################################################################################################
+
+DC.Diff.Normal   = 1.0
+DC.Diff.Dungeon  = 1.0
+DC.Diff.Raid     = 1.0
+
+###################################################################################################

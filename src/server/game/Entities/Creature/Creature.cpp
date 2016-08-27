@@ -47,6 +47,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "Transport.h"
+#include "DCMgr.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -1186,7 +1187,7 @@ void Creature::SelectLevel()
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
     // health
-    float healthmod = _GetHealthMod(rank);
+    float healthmod = _GetHealthMod(rank) * sDCMgr->getConfigFloat(GetMap()->IsNonRaidDungeon() ? DC_CONFIG_DIFF_DUNGEON : GetMap()->IsRaid() ? DC_CONFIG_DIFF_RAID : DC_CONFIG_DIFF_NORMAL);
 
     uint32 basehp = stats->GenerateHealth(cInfo);
     uint32 health = uint32(basehp * healthmod);
@@ -1448,6 +1449,8 @@ void Creature::SetSpawnHealth()
             if (curhealth)
             {
                 curhealth = uint32(curhealth*_GetHealthMod(GetCreatureTemplate()->rank));
+                curhealth = uint32(curhealth * sDCMgr->getConfigFloat(GetMap()->IsNonRaidDungeon() ? DC_CONFIG_DIFF_DUNGEON : GetMap()->IsRaid() ? DC_CONFIG_DIFF_RAID : DC_CONFIG_DIFF_NORMAL));
+
                 if (curhealth < 1)
                     curhealth = 1;
             }
