@@ -125,7 +125,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     else if (guid.IsItem())
     {
         item = _player->GetItemByGuid(guid);
-        if (!item)
+        if (!item || _player->IsBankPos(item->GetPos()))
         {
             TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Item (GUID: %u) not found.", guid.ToString().c_str());
             return;
