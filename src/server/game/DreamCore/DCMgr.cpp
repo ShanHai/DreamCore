@@ -117,7 +117,7 @@ void DCMgr::LoadDCCosts()
 
     // cleanup affected map part for reloading case
     m_DCCosts.clear();
-    auto& data = m_DCRequirements[fields[0].GetUInt32()];
+
     auto result = WorldDatabase.PQuery("SELECT "
                                        //   0      1      2           3      4      5      6      7      8      9     10     11     12     13      14          15          16          17          18          19
                                        "entry, money, honor, arenaPoint, point, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, itemCount1, itemCount2, itemCount3, itemCount4, itemCount5, "
@@ -363,7 +363,7 @@ std::string DCMgr::BuildMoneyText(uint32 money, bool tag)
 std::string DCMgr::BuildFullCostText(uint32 iD, bool icon, bool prefix, LocaleConstant locale)
 {
     auto cost = GetDCCost(iD);
- 
+
     if (!cost)
         return "";
 
