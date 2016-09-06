@@ -254,6 +254,8 @@ Item::Item()
     m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
+
+    m_fakeEntry = 0;
 }
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner)
@@ -353,6 +355,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
+            stmt->setUInt32(++index, m_fakeEntry);
             stmt->setUInt32(++index, guid);
 
             trans->Append(stmt);
@@ -401,8 +404,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
-    //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                                    0                1      2         3        4      5             6                 7           8           9    10         11
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, fakeEntry FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -465,6 +468,23 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
 
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[9].GetUInt32());
     SetText(fields[10].GetString());
+
+    if (proto->IsEquipmentOrWeapen())
+    {
+        auto fakeEntry = fields[11].GetUInt32();
+        if (fakeEntry && !sObjectMgr->GetItemTemplate(fakeEntry))
+        {
+            TC_LOG_ERROR("dc.transmog", "Item guid %u has invalid fake item entry %u, set to 0.", guid, fakeEntry);
+            fakeEntry = 0;
+
+            auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_FAKEENTRY_ONLOAD);
+            stmt->setUInt32(0, 0);
+            stmt->setUInt32(1, guid);
+            CharacterDatabase.Execute(stmt);
+        }
+
+        m_fakeEntry = fakeEntry;
+    }
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -1420,4 +1440,26 @@ void Item::SetCount(uint32 value)
                 tradeData->SetItem(slot, this, true);
         }
     }
+}
+
+ItemTemplate const* Item::GetTemplateOrFakeTemplate() const
+{
+    return sObjectMgr->GetItemTemplate(m_fakeEntry ? m_fakeEntry : GetEntry());
+}
+
+void Item::SetFakeEntry(uint32 fakeEntry)
+{
+    if (m_fakeEntry == fakeEntry)
+        return;
+
+    if (fakeEntry && !sObjectMgr->GetItemTemplate(fakeEntry))
+    {
+        TC_LOG_ERROR("dc.transmog", "Item::SetFakeEntry try to set an invalid fake entry %u for item guid %u, entry %u, use 0 instead.", fakeEntry, GetGUID().GetCounter(), GetEntry());
+
+        fakeEntry = 0;
+    }
+
+    m_fakeEntry = fakeEntry;
+
+    SetState(ITEM_CHANGED, GetOwner());
 }

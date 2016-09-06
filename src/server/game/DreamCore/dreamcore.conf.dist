@@ -113,3 +113,178 @@ DC.Diff.Dungeon  = 1.0
 DC.Diff.Raid     = 1.0
 
 ###################################################################################################
+# DC TRANSMOGRIFICATION SYSTEM
+#
+#    DC.Transmog.EnableTransmogInfo
+#        Description: Enables / Disables the info button for Transmog
+#        Default:    1
+#
+#    DC.Transmog.TransmogNpcText
+#        Description: The npc_text entry of the info menu for Transmog
+#        Default:    12000000
+#
+#    DC.Transmog.Allowed
+#        Description: A list of item entries that are allowed for Transmog (skips quality and CanUseItem check)
+#                     Example: "25 35674 5623"
+#        Default:    ""
+#
+#    DC.Transmog.NotAllowed
+#        Description: A list of item entries that are NOT allowed for Transmog
+#                     Example: "25 35674 5623"
+#        Default:    ""
+#
+#    DC.Transmog.ScaledCostModifier
+#        Description: A multiplier for the default gold cost (change to 0 for no default cost)
+#        Default:    1.0
+#
+#    DC.Transmog.CopperCost
+#        Description: Cost added on top of other costs (can be negative). For custom gold cost set ScaledCostModifier to 0.0 and CopperCost to what ever cost you want
+#        Default:    0
+#
+#    DC.Transmog.RequireToken
+#        Description: Adds/disables token cost
+#        Default:    0
+#
+#    DC.Transmog.TokenEntry
+#        Description: Entry of the token item
+#        Default:    37711
+#
+#    DC.Transmog.TokenAmount
+#        Description: Amount of tokens required
+#        Default:    1
+#
+#    DC.Transmog.AllowPoor
+#        Description: Allow poor quality items to be used as source and target items
+#        Default:    0
+#
+#    DC.Transmog.AllowCommon
+#        Description: Allow common quality items to be used as source and target items
+#        Default:    0
+#
+#    DC.Transmog.AllowUncommon
+#        Description: Allow uncommon quality items to be used as source and target items
+#        Default:    1
+#
+#    DC.Transmog.AllowRare
+#        Description: Allow rare quality items to be used as source and target items
+#        Default:    1
+#
+#    DC.Transmog.AllowEpic
+#        Description: Allow epic quality items to be used as source and target items
+#        Default:    1
+#
+#    DC.Transmog.AllowLegendary
+#        Description: Allow legendary quality items to be used as source and target items
+#        Default:    0
+#
+#    DC.Transmog.AllowArtifact
+#        Description: Allow artifact quality items to be used as source and target items
+#        Default:    0
+#
+#    DC.Transmog.AllowHeirloom
+#        Description: Allow heirloom quality items to be used as source and target items
+#        Default:    1
+#
+#    DC.Transmog.AllowMixedArmorTypes
+#        Description: Allow cloth items to be transmogrified with plate for example
+#        Default:    0
+#
+#    DC.Transmog.AllowMixedWeaponTypes
+#        Description: Allow axe to be transmogrified with dagger for example
+#        Default:    0
+#
+#    DC.Transmog.AllowFishingPoles
+#        Description: Allow fishing poles to be transmogrified
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqRace
+#        Description: Ignore required race for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqClass
+#        Description: Ignore required class for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqSkill
+#        Description: Ignore required skill for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqSpell
+#        Description: Ignore required spell for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqLevel
+#        Description: Ignore required level for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqEvent
+#        Description: Ignore required event for source items
+#        Default:    0
+#
+#    DC.Transmog.IgnoreReqStats
+#        Description: Ignore stat count > 0 requirement for source items
+#        Default:    0
+#
+#    DC.Transmog.EnableSets
+#        Description: Enables / Disables the set feature.
+#        Default:    1
+#
+#    DC.Transmog.MaxSets
+#        Description: Maximum amount of sets a player can save (limit at 25)
+#        Default:    10
+#
+#    DC.Transmog.EnableSetInfo
+#        Description: Enables / Disables the info button for set fature
+#        Default:    1
+#
+#    DC.Transmog.SetNpcText
+#        Description: The npc_text entry of the info menu for the set feature
+#        Default:    12000000
+#
+#    DC.Transmog.SetCostModifier
+#        Description: A multiplier for the default gold cost (all costs summed together) (change to 0 for no default cost)
+#        Default:    3.0
+#
+#    DC.Transmog.SetCopperCost
+#        Description: Cost added on top of other costs (can be negative)
+#        Default:    0
+#
+###################################################################################################
+
+DC.Transmog.EnableTransmogInfo    = 1
+DC.Transmog.TransmogNpcText       = 12000000
+DC.Transmog.Allowed               = ""
+DC.Transmog.NotAllowed            = ""
+DC.Transmog.ScaledCostModifier    = 1.0
+DC.Transmog.CopperCost            = 0
+DC.Transmog.RequireToken          = 1
+DC.Transmog.TokenEntry            = 37711
+DC.Transmog.TokenAmount           = 1
+
+DC.Transmog.AllowPoor             = 0
+DC.Transmog.AllowCommon           = 0
+DC.Transmog.AllowUncommon         = 1
+DC.Transmog.AllowRare             = 1
+DC.Transmog.AllowEpic             = 1
+DC.Transmog.AllowLegendary        = 0
+DC.Transmog.AllowArtifact         = 0
+DC.Transmog.AllowHeirloom         = 1
+DC.Transmog.AllowMixedArmorTypes  = 0
+DC.Transmog.AllowMixedWeaponTypes = 0
+DC.Transmog.AllowFishingPoles     = 0
+DC.Transmog.IgnoreReqRace         = 0
+DC.Transmog.IgnoreReqClass        = 0
+DC.Transmog.IgnoreReqSkill        = 0
+DC.Transmog.IgnoreReqSpell        = 0
+DC.Transmog.IgnoreReqLevel        = 0
+DC.Transmog.IgnoreReqEvent        = 0
+DC.Transmog.IgnoreReqStats        = 0
+
+DC.Transmog.EnableSets            = 1
+DC.Transmog.MaxSets               = 10
+DC.Transmog.EnableSetInfo         = 1
+DC.Transmog.SetNpcText            = 12000001
+DC.Transmog.SetCostModifier       = 3.0
+DC.Transmog.SetCopperCost         = 0
+
+###################################################################################################

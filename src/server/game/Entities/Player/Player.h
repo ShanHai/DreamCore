@@ -128,6 +128,13 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
+struct TransmogPreset
+{
+    std::string name;
+    std::map<uint8, uint32> slotMap; // slotMap[slotId] = entry
+};
+typedef std::map<uint8, TransmogPreset> TansmogPresetMap;
+
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
@@ -824,6 +831,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS   = 31,
     PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS    = 32,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION         = 33,
+    PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_PRESETS        = 34,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1446,8 +1454,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder);
         void LoadVipAndPointsFromDB();
-        void LoadVipFromDB();
-        void LoadPointsFromDB();
         bool IsLoading() const override;
 
         void Initialize(ObjectGuid::LowType guid);
@@ -1469,8 +1475,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SaveGoldToDB(SQLTransaction& trans) const;
         void SaveVipAndPointsToDB();
         void SaveVipAndPointsToDB(SQLTransaction& trans);
-        void SaveVipToDB(SQLTransaction& trans);
-        void SavePointsToDB(SQLTransaction& trans);
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
@@ -2310,6 +2314,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void   InitCustomTimers();
 
+        TansmogPresetMap presetMap;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2381,6 +2387,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void _LoadTransmogPresetsFromDB(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2403,6 +2410,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans) const;
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
+        void _SaveTransmogPresetsToDB(SQLTransaction& trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/

@@ -328,6 +328,7 @@ class TC_GAME_API Item : public Object
         bool IsWeaponVellum() const { return GetTemplate()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetTemplate()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
+        bool IsEquipmentOrWeapen() const { return GetTemplate()->IsEquipmentOrWeapen(); }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
@@ -354,6 +355,15 @@ class TC_GAME_API Item : public Object
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+
+        /************************************************************/
+        /***                Transmogrification                    ***/
+        /************************************************************/
+        ItemTemplate const* GetTemplateOrFakeTemplate() const;
+        uint32 GetEntryOrFakeEntry() { return m_fakeEntry ? m_fakeEntry : GetEntry(); }
+        uint32 GetFakeEntry() const { return m_fakeEntry; }
+        void SetFakeEntry(uint32 fakeEntry);
+
     private:
         std::string m_text;
         uint8 m_slot;
@@ -366,5 +376,8 @@ class TC_GAME_API Item : public Object
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
         AllowedLooterSet allowedGUIDs;
+
+        // Transmogrification
+        uint32 m_fakeEntry;
 };
 #endif

@@ -675,6 +675,7 @@ struct ItemTemplate
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
+    bool IsEquipmentOrWeapen() const { return Class == ITEM_CLASS_WEAPON || Class == ITEM_CLASS_ARMOR; }
 };
 
 // Benchmarked: Faster than std::map (insert/find)

@@ -4,6 +4,7 @@ void AddSC_DC_teleporter();
 void AddSC_DC_composer();
 void AddSC_DC_items();
 void AddSC_DC_commandscript();
+void AddSC_DC_transmog();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -14,4 +15,5 @@ void AddDreamCoreScripts()
     AddSC_DC_composer();
     AddSC_DC_items();
     AddSC_DC_commandscript();
+    AddSC_DC_transmog();
 }

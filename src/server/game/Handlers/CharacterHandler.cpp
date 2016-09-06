@@ -208,6 +208,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TRANSMOG_SETS);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_PRESETS, stmt);
+
     return res;
 }
 

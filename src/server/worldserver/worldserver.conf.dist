@@ -3631,6 +3631,8 @@ Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
+Logger.dc=3,Console Server
+Logger.dc.transmog=3,Console Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

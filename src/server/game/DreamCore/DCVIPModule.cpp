@@ -77,9 +77,9 @@ void DCVIPModule::LoadVipVendors()
 
 void DCVIPModule::ChangeAccountVipLevel(uint32 accountID, uint32 vipLevel, int32 realmID)
 {
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_BY_REALMID);
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_AND_POINTS);
     stmt->setUInt32(0, accountID);
-    stmt->setUInt32(1, realmID);
+    stmt->setInt32(1, realmID);
 
     auto result = LoginDatabase.Query(stmt);
     if (!result)
@@ -88,13 +88,15 @@ void DCVIPModule::ChangeAccountVipLevel(uint32 accountID, uint32 vipLevel, int32
         stmt->setUInt32(0, accountID);
         stmt->setUInt32(1, vipLevel);
         stmt->setUInt32(2, 0);
-        stmt->setUInt32(3, realmID);
+        stmt->setInt32(3, realmID);
     }
     else
     {
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL);
+        auto fields = result->Fetch();
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL_POINTS);
         stmt->setUInt32(0, vipLevel);
-        stmt->setUInt32(1, accountID);
+        stmt->setUInt32(1, fields[1].GetUInt32());
+        stmt->setUInt32(2, accountID);
     }
 
     LoginDatabase.Execute(stmt);
@@ -102,9 +104,9 @@ void DCVIPModule::ChangeAccountVipLevel(uint32 accountID, uint32 vipLevel, int32
 
 void DCVIPModule::ChangeAccountPoints(uint32 accountID, uint32 points, int32 realmID)
 {
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_POINTS_BY_REALMID);
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_AND_POINTS);
     stmt->setUInt32(0, accountID);
-    stmt->setUInt32(1, realmID);
+    stmt->setInt32(1, realmID);
 
     auto result = LoginDatabase.Query(stmt);
     if (!result)
@@ -113,13 +115,15 @@ void DCVIPModule::ChangeAccountPoints(uint32 accountID, uint32 points, int32 rea
         stmt->setUInt32(0, accountID);
         stmt->setUInt32(1, 0);
         stmt->setUInt32(2, points);
-        stmt->setUInt32(3, realmID);
+        stmt->setInt32(3, realmID);
     }
     else
     {
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_POINTS);
-        stmt->setUInt32(0, points);
-        stmt->setUInt32(1, accountID);
+        auto fields = result->Fetch();
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL_POINTS);
+        stmt->setUInt32(0, fields[0].GetUInt32());
+        stmt->setUInt32(1, points);
+        stmt->setUInt32(2, accountID);
     }
 
     LoginDatabase.Execute(stmt);
@@ -127,9 +131,9 @@ void DCVIPModule::ChangeAccountPoints(uint32 accountID, uint32 points, int32 rea
 
 void DCVIPModule::ModifyAccountPoints(uint32 accountID, int32 points, int32 realmID)
 {
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_POINTS_BY_REALMID);
+    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_AND_POINTS);
     stmt->setUInt32(0, accountID);
-    stmt->setUInt32(1, realmID);
+    stmt->setInt32(1, realmID);
 
     auto result = LoginDatabase.Query(stmt);
     if (!result)
@@ -138,16 +142,17 @@ void DCVIPModule::ModifyAccountPoints(uint32 accountID, int32 points, int32 real
         stmt->setUInt32(0, accountID);
         stmt->setUInt32(1, 0);
         stmt->setUInt32(2, points < 0 ? 0 : points);
-        stmt->setUInt32(3, realmID);
+        stmt->setInt32(3, realmID);
     }
     else
     {
         auto fields = result->Fetch();
-        auto newPoints = fields[0].GetInt32() + points;
+        auto newPoints = fields[1].GetInt32() + points;
 
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_POINTS);
-        stmt->setUInt32(0, newPoints < 0 ? 0 : newPoints);
-        stmt->setUInt32(1, accountID);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL_POINTS);
+        stmt->setUInt32(0, fields[0].GetUInt32());
+        stmt->setUInt32(1, newPoints < 0 ? 0 : newPoints);
+        stmt->setInt32(2, accountID);
     }
 
     LoginDatabase.Execute(stmt);

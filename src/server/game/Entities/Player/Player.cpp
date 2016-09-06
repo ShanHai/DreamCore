@@ -536,7 +536,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_vipLevel = 0;
     m_points = 0;
 
-    memset(m_customTimers, 0, CUSTOM_TIMERS_COUNT);
+    memset(m_customTimers, 0, sizeof(uint32) * CUSTOM_TIMERS_COUNT);
 }
 
 Player::~Player()
@@ -873,7 +873,7 @@ void Player::LoadVipAndPointsFromDB()
 {
     auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_AND_POINTS);
     stmt->setUInt32(0, m_session->GetAccountId());
-    stmt->setUInt32(1, realm.Id.Realm);
+    stmt->setInt32(1, realm.Id.Realm);
 
     auto result = LoginDatabase.Query(stmt);
     if (!result)
@@ -889,42 +889,6 @@ void Player::LoadVipAndPointsFromDB()
         m_vipLevel  = fields[0].GetUInt32();
 
         SetPoints(fields[1].GetUInt32());
-    }
-}
-
-void Player::LoadVipFromDB()
-{
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_VIPLEVEL_BY_REALMID);
-    stmt->setUInt32(0, m_session->GetAccountId());
-    stmt->setUInt32(1, realm.Id.Realm);
-
-    auto result = LoginDatabase.Query(stmt);
-    if (!result)
-    {
-        m_vipLevel = 0;
-    }
-    else
-    {
-        auto fields = result->Fetch();
-        m_vipLevel = fields[0].GetUInt32();
-    }
-}
-
-void Player::LoadPointsFromDB()
-{
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_POINTS_BY_REALMID);
-    stmt->setUInt32(0, m_session->GetAccountId());
-    stmt->setUInt32(1, realm.Id.Realm);
-
-    auto result = LoginDatabase.Query(stmt);
-    if (!result)
-    {
-        SetPoints(0);
-    }
-    else
-    {
-        auto fields = result->Fetch();
-        SetPoints(fields[0].GetUInt32());
     }
 }
 
@@ -4447,8 +4411,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                             do
                             {
                                 Field* itemFields = resultItems->Fetch();
-                                ObjectGuid::LowType item_guidlow = itemFields[11].GetUInt32();
-                                uint32 item_template = itemFields[12].GetUInt32();
+                                ObjectGuid::LowType item_guidlow = itemFields[12].GetUInt32();
+                                uint32 item_template = itemFields[13].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
@@ -12238,7 +12202,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntryOrFakeEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -17796,6 +17760,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
+    _LoadTransmogPresetsFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TRANSMOG_PRESETS));
+
+    LoadVipAndPointsFromDB();
+
     return true;
 }
 
@@ -18030,8 +17998,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                ObjectGuid::LowType bagGuid = fields[11].GetUInt32();
-                uint8  slot     = fields[12].GetUInt8();
+                ObjectGuid::LowType bagGuid = fields[12].GetUInt32();
+                uint8  slot     = fields[13].GetUInt8();
 
                 InventoryResult err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -18140,8 +18108,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
 {
     Item* item = nullptr;
-    ObjectGuid::LowType itemGuid  = fields[13].GetUInt32();
-    uint32 itemEntry = fields[14].GetUInt32();
+    ObjectGuid::LowType itemGuid  = fields[14].GetUInt32();
+    uint32 itemEntry = fields[15].GetUInt32();
     if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry))
     {
         bool remove = false;
@@ -18278,8 +18246,8 @@ void Player::_LoadMailedItems(Mail* mail)
     {
         Field* fields = result->Fetch();
 
-        ObjectGuid::LowType itemGuid = fields[11].GetUInt32();
-        uint32 itemTemplate = fields[12].GetUInt32();
+        ObjectGuid::LowType itemGuid = fields[12].GetUInt32();
+        uint32 itemTemplate = fields[13].GetUInt32();
 
         mail->AddItem(itemGuid, itemTemplate);
 
@@ -18302,7 +18270,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(itemGuid, ObjectGuid(HighGuid::Player, fields[13].GetUInt32()), fields, itemTemplate))
+        if (!item->LoadFromDB(itemGuid, ObjectGuid(HighGuid::Player, fields[14].GetUInt32()), fields, itemTemplate))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: %u) in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
 
@@ -19497,6 +19465,8 @@ void Player::SaveToDB(bool create /*=false*/)
     if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
         _SaveStats(trans);
 
+    _SaveTransmogPresetsToDB(trans);
+
     CharacterDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
@@ -19523,7 +19493,7 @@ void Player::SaveGoldToDB(SQLTransaction& trans) const
 
 void Player::SaveVipAndPointsToDB()
 {
-    auto result = LoginDatabase.PQuery("SELECT 1 FROM dc_vip WHERE id = %u", m_session->GetAccountId());
+    auto result = LoginDatabase.PQuery("SELECT 1 FROM dc_vip WHERE id = '%u' AND (RealmID = -1 OR RealmID = '%i')", m_session->GetAccountId(), realm.Id.Realm);
     auto trans  = LoginDatabase.BeginTransaction();
 
     if (!result)
@@ -19532,7 +19502,7 @@ void Player::SaveVipAndPointsToDB()
         stmt->setUInt32(0, m_session->GetAccountId());
         stmt->setUInt32(1, GetVipLevel());
         stmt->setUInt32(2, GetPoints());
-        stmt->setUInt32(3, realm.Id.Realm);
+        stmt->setInt32(3, realm.Id.Realm);
         trans->Append(stmt);
     }
     else
@@ -19547,24 +19517,6 @@ void Player::SaveVipAndPointsToDB(SQLTransaction& trans)
     stmt->setUInt32(0, GetVipLevel());
     stmt->setUInt32(1, GetPoints());
     stmt->setUInt32(2, m_session->GetAccountId());
-
-    trans->Append(stmt);
-}
-
-void Player::SaveVipToDB(SQLTransaction& trans)
-{
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VIPLEVEL);
-    stmt->setUInt32(0, GetVipLevel());
-    stmt->setUInt32(1, m_session->GetAccountId());
-
-    trans->Append(stmt);
-}
-
-void Player::SavePointsToDB(SQLTransaction& trans)
-{
-    auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_POINTS);
-    stmt->setUInt32(0, GetPoints());
-    stmt->setUInt32(1, m_session->GetAccountId());
 
     trans->Append(stmt);
 }
@@ -26485,6 +26437,45 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
+void Player::_LoadTransmogPresetsFromDB(PreparedQueryResult result)
+{
+    //                                                               0          1          2
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT `id`, `name`, `data` FROM `dc_transmog_sets` WHERE character = '%u'", GetGUID().GetCounter());
+
+    if (!result) return;
+
+    do
+    {
+        auto field    = result->Fetch();
+        auto PresetID = field[0].GetUInt8();
+        auto SetName  = field[1].GetString();
+
+        std::istringstream SetData(field[2].GetString());
+
+        presetMap[PresetID].name = SetName;
+
+        while (SetData.good())
+        {
+            uint32 slot;
+            uint32 entry;
+            SetData >> slot >> entry;
+            if (SetData.fail())
+                break;
+            if (slot >= EQUIPMENT_SLOT_END)
+            {
+                TC_LOG_ERROR("dc.transmog", "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) has invalid slot, ignoring.", entry, GetGUID().GetCounter(), uint32(slot), uint32(PresetID));
+                continue;
+            }
+            if (sObjectMgr->GetItemTemplate(entry))
+            {
+                presetMap[PresetID].slotMap[slot] = entry;
+            }
+            else
+                TC_LOG_ERROR("dc.transmog", "Item entry (FakeEntry: %u, playerGUID: %u, slot: %u, presetId: %u) does not exist, ignoring.", entry, GetGUID().GetCounter(), uint32(slot), uint32(PresetID));
+        }
+    } while (result->NextRow());
+}
+
 void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
 {
     if (_instanceResetTimes.empty())
@@ -26500,6 +26491,23 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         stmt->setUInt32(0, GetSession()->GetAccountId());
         stmt->setUInt32(1, itr->first);
         stmt->setUInt64(2, itr->second);
+        trans->Append(stmt);
+    }
+}
+
+void Player::_SaveTransmogPresetsToDB(SQLTransaction& trans)
+{
+    for (auto it = presetMap.begin(); it != presetMap.end(); ++it)
+    {
+        std::ostringstream ss;
+        for (auto it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
+            ss << uint32(it2->first) << ' ' << it2->second << ' ';
+
+        auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_TRANSMOG_SETS);
+        stmt->setUInt32(0, GetGUID().GetCounter());
+        stmt->setUInt32(1, it->first);
+        stmt->setString(2, it->second.name);
+        stmt->setString(3, ss.str());
         trans->Append(stmt);
     }
 }
