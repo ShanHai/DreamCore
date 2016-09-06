@@ -33,10 +33,10 @@ void DCMgr::Initialize()
 
 void DCMgr::LoadConfig()
 {
-    if (!sDCConfigMgr->Load("chgtrinity.conf"))
+    if (!sDCConfigMgr->Load("dreamcore.conf"))
         exit(0);
 
-    TC_LOG_INFO("dc", "Using configuration file chgtrinity.conf.");
+    TC_LOG_INFO("dc", "Using configuration file dreamcore.conf.");
 
     m_config_int[DC_CONFIG_TELEPORT_MENUITEMS_PER_PAGE]    = sDCConfigMgr->GetIntDefault("DC.Teleport.MenuItemsPerPage",       5);
     m_config_bool[DC_CONFIG_TELEPORT_REMIND]               = sDCConfigMgr->GetBoolDefault("DC.Teleport.EnableRemind",          false);
