@@ -26439,8 +26439,8 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
 
 void Player::_LoadTransmogPresetsFromDB(PreparedQueryResult result)
 {
-    //                                                               0          1          2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT `id`, `name`, `data` FROM `dc_transmog_sets` WHERE character = '%u'", GetGUID().GetCounter());
+    //                                                        0     1     2
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT id, name, data FROM dc_transmog_sets WHERE guid = '%u'", GetGUID().GetCounter());
 
     if (!result) return;
 

@@ -617,6 +617,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_ITEM_FAKEENTRY, "SELECT guid, itemEntry, fakeEntry FROM item_instance WHERE guid = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_UPD_ITEM_FAKEENTRY, "UPDATE item_instance SET fakeEntry = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_ITEM_FAKEENTRY_ONLOAD, "UPDATE item_instance SET fakeEntry = ? WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_TRANSMOG_SETS, "SELECT id, name, data FROM dc_transmog_sets WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_TRANSMOG_SETS, "SELECT id, name, data FROM dc_transmog_sets WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_TRANSMOG_SETS, "REPLACE INTO dc_transmog_sets (guid, id, name, data) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
 }
