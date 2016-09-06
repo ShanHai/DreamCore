@@ -19,7 +19,7 @@ DCTeleportModule::DCTeleportModule():
     TC_LOG_INFO("dc.teleport", "DCTeleportModule initialized.");
 }
 
-void DCTeleportModule::ReloadDataBase()
+void DCTeleportModule::Reload()
 {
     TC_LOG_INFO("dc.teleport", "Reloading DCTeleportModule...");
 

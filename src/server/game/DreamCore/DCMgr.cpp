@@ -288,7 +288,7 @@ bool DCMgr::ReloadModule(const std::string& name)
 
     TC_LOG_INFO("dc.module", "Reloading module [%s]...", name.c_str());
 
-    module->ReloadDataBase();
+    module->Reload();
 
     TC_LOG_INFO("dc.module", "Module [%s] reloaded!", name.c_str());
 
@@ -300,7 +300,7 @@ void DCMgr::ReloadAllModules()
     TC_LOG_INFO("dc.module", "Reloading all modules...");
 
     for (auto module : m_modules)
-        module->ReloadDataBase();
+        module->Reload();
 
     TC_LOG_INFO("dc.module", "All modules reloaded!");
 }

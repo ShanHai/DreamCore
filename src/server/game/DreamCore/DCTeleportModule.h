@@ -32,7 +32,7 @@ class DCTeleportModule : public DCModule
     public:
         static DCTeleportModule* instance();
 
-        void ReloadDataBase() override;
+        void Reload() override;
 
         auto GetTeleportDefinitionsMapBounds(uint32 category) const
         {

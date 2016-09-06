@@ -15,7 +15,7 @@ DCComposeModule::DCComposeModule() :
     Initialize();
 }
 
-void DCComposeModule::ReloadDataBase()
+void DCComposeModule::Reload()
 {
     TC_LOG_INFO("dc.compose", "Reloading DCComposeModule...");
 

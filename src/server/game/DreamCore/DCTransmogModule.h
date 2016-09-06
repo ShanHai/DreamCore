@@ -15,7 +15,7 @@ class DCTransmogModule : public DCModule
 public:
     static DCTransmogModule* instance();
 
-    void ReloadDataBase() override;
+    void Reload() override;
 
     bool EnableSetInfo;
     uint32 SetNpcText;

@@ -73,7 +73,7 @@ typedef std::unordered_map<uint32, DCItem>        DCItems;
 class DCModule
 {
     public:
-        virtual void ReloadDataBase() { }
+        virtual void Reload() { }
 
         const std::string& getName() { return m_name; }
         bool enabled() { return m_enabled; }

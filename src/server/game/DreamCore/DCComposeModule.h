@@ -48,7 +48,7 @@ class DCComposeModule : public DCModule
     public:
         static DCComposeModule* instance();
 
-        void ReloadDataBase() override;
+        void Reload() override;
 
         auto GetComposeLootMapBounds(uint32 id) const
         {

@@ -15,7 +15,7 @@ DCVIPModule::DCVIPModule() :
     Initialize();
 }
 
-void DCVIPModule::ReloadDataBase()
+void DCVIPModule::Reload()
 {
     TC_LOG_INFO("dc.vip", "Reloading DCVIPModule...");
 

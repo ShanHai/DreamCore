@@ -20,13 +20,15 @@ DCTransmogModule::DCTransmogModule() : DCModule("transmog")
     TC_LOG_INFO("dc.transmog", "DCTransmogModule initialized.");
 }
 
-void DCTransmogModule::ReloadDataBase()
+void DCTransmogModule::Reload()
 {
     TC_LOG_INFO("dc.transmog", "Reloading DCTransmogModule...");
 
     LoadDatabase();
 
     TC_LOG_INFO("dc.transmog", "DCTransmogModule reload complete...");
+
+    LoadConfig(true);
 }
 
 void DCTransmogModule::Initialize()

@@ -10,7 +10,7 @@ class DCVIPModule : public DCModule
     public:
         static DCVIPModule* instance();
 
-        void ReloadDataBase() override;
+        void Reload() override;
 
         void ChangeAccountVipLevel(uint32 accountID, uint32 vipLevel, int32 realmID);
         void ChangeAccountPoints(uint32 accountID, uint32 points, int32 realmID);
