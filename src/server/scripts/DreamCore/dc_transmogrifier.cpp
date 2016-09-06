@@ -97,7 +97,7 @@ public:
 
                 if (!player->presetMap.empty())
                 {
-                    for (PresetMapType::const_iterator it = player->presetMap.begin(); it != player->presetMap.end(); ++it)
+                    for (auto it = player->presetMap.begin(); it != player->presetMap.end(); ++it)
                         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|t" + it->second.name, EQUIPMENT_SLOT_END + 6, it->first);
 
                     if (player->presetMap.size() < sDCTransmogModule->MaxSets)
@@ -145,7 +145,7 @@ public:
                     return true;
                 }
 
-                for (PresetslotMapType::const_iterator it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
+                for (auto it2 = it->second.slotMap.begin(); it2 != it->second.slotMap.end(); ++it2)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(it2->second, 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(it2->second, session), sender, action);
 
                 player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, "|TInterface/ICONS/INV_Misc_Statue_02:30:30:-18:0|tUse set", EQUIPMENT_SLOT_END + 5, action, "Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n" + it->second.name, 0, false);
@@ -276,7 +276,7 @@ public:
         }
 
         int32 cost = 0;
-        PresetslotMapType items;
+        std::map<uint8, uint32> items;
         for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
         {
             if (!sDCTransmogModule->GetSlotName(slot, player->GetSession()))

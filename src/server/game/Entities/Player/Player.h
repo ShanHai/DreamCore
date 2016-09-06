@@ -133,7 +133,7 @@ struct TransmogPreset
     std::string name;
     std::map<uint8, uint32> slotMap; // slotMap[slotId] = entry
 };
-typedef std::map<uint8, TransmogPreset> TansmogPresetMap;
+typedef std::map<uint8, TransmogPreset> TransmogPresetMap;
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
@@ -2314,7 +2314,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void   InitCustomTimers();
 
-        TansmogPresetMap presetMap;
+        TransmogPresetMap presetMap;
 
     protected:
         // Gamemaster whisper whitelist
