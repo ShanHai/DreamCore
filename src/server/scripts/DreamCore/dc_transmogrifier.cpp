@@ -349,7 +349,7 @@ public:
             std::ostringstream ss;
             ss << std::endl;
             if (sDCTransmogModule->RequireToken)
-                ss << std::endl << std::endl << sDCTransmogModule->TokenAmount << " x " << sDCTransmogModule->GetItemLink(sDCTransmogModule->TokenEntry, session);
+                ss << std::endl << sDCTransmogModule->GetItemLink(sDCTransmogModule->TokenEntry, session) << " x " << sDCTransmogModule->TokenAmount;
 
             for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             {
@@ -363,7 +363,7 @@ public:
                 if (oldItem->GetFakeEntry() == newItem->GetEntry())
                     continue;
                 ++limit;
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
+                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -20) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
             }
 
             for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -383,7 +383,7 @@ public:
                     if (oldItem->GetFakeEntry() == newItem->GetEntry())
                         continue;
                     ++limit;
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -10) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
+                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -20) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
                 }
             }
         }
