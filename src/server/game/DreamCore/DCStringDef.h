@@ -67,7 +67,16 @@ enum DCStringDef
     STRING_TRANSMOG_REMIND                   = 62,        // Using this item for transmogrify will bind it to you and make it non-refundable and non-tradeable. Do you wish to continue ?
     STRING_UNTRANSMOG_REMIND                 = 63,        // Are you sure you want to remove transmogrification from the slot?
     STRING_UNTRANSMOG_ALL_REMIND             = 64,        // Are you sure you want to remove transmogrifications from all equipped items?
-    STRING_TRANSMOG_INVALID_PRESET_NAME      = 65,        // Invalid transmog preset name.
+    STRING_TRANSMOG_PRESET_INVALID_NAME      = 65,        // Invalid transmog preset name.
+    STRING_TRANSMOG_PRESET_MANAGE            = 66,        // Manage presets
+    STRING_TRANSMOG_PRESET_INFO              = 67,        // See how sets work
+    STRING_TRANSMOG_PRESET_SAVE              = 68,        // Save preset
+    STRING_TRANSMOG_PRESET_USE               = 69,        // Use preset
+    STRING_TRANSMOG_PRESET_USE_INFO          = 70,        // Using this set for transmogrify will bind transmogrified items to you and make them non-refundable and non-tradeable.\nDo you wish to continue?\n\n
+    STRING_TRANSMOG_PRESET_DELETE            = 71,        // Delete preset
+    STRING_TRANSMOG_PRESET_DELETE_INFO_0     = 72,        // Are you sure you want to delete preset [
+    STRING_TRANSMOG_PRESET_DELETE_INFO_1     = 73,        // ] ?
+    STRING_TRANSMOG_PRESET_SAVE_INFO         = 74,        // Input preset name
     STRING_EQUIPMENT_SLOT_HEAD               = 5000,      // Head
     STRING_EQUIPMENT_SLOT_NECK               = 5001,      // Neck
     STRING_EQUIPMENT_SLOT_SHOULDERS          = 5002,      // Shoulders
