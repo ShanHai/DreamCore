@@ -29,7 +29,6 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_PRESET_MANAGE), EQUIPMENT_SLOT_END + 4, 0);
 
         player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_REMOVE_ALL), EQUIPMENT_SLOT_END + 2, 0, GDCS(STRING_UNTRANSMOG_ALL_REMIND), 0, false);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_REFRESH), EQUIPMENT_SLOT_END + 1, 0);
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
@@ -205,7 +204,6 @@ public:
 
                 if (canSave)
                     player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_PRESET_SAVE), 0, 0, GDCS(STRING_TRANSMOG_PRESET_SAVE_INFO), cost*sDCTransmogModule->SetCostModifier + sDCTransmogModule->SetCopperCost, true);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_REFRESH), sender, action);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_BACK), EQUIPMENT_SLOT_END + 4, 0);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 
@@ -239,7 +237,7 @@ public:
                 else
                     session->SendNotification(res);
 
-                OnGossipSelect(player, creature, EQUIPMENT_SLOT_END, sender);
+                player->CLOSE_GOSSIP_MENU();
 
                 break;
             }
@@ -330,7 +328,8 @@ public:
             }
         }
 
-        OnGossipSelect(player, creature, EQUIPMENT_SLOT_END + 4, 0);
+        player->CLOSE_GOSSIP_MENU();
+
         return true;
     }
 
@@ -363,7 +362,7 @@ public:
                 if (oldItem->GetFakeEntry() == newItem->GetEntry())
                     continue;
                 ++limit;
-                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -20) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
+                player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -15) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
             }
 
             for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -383,13 +382,12 @@ public:
                     if (oldItem->GetFakeEntry() == newItem->GetEntry())
                         continue;
                     ++limit;
-                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -20) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
+                    player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 30, 30, -18, 0) + sDCTransmogModule->GetItemLink(newItem, session), slot, newItem->GetGUID().GetCounter(), GDCS(STRING_TRANSMOG_REMIND) + sDCTransmogModule->GetItemIcon(newItem->GetEntry(), 40, 40, -15, -15) + sDCTransmogModule->GetItemLink(newItem, session) + ss.str(), price, false);
                 }
             }
         }
 
         player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_REMOVE), EQUIPMENT_SLOT_END + 3, slot, GDCS(STRING_UNTRANSMOG_REMIND), 0, false);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_REFRESH), EQUIPMENT_SLOT_END, slot);
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GDCS(STRING_TRANSMOG_BACK), EQUIPMENT_SLOT_END + 1, 0);
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
     }
